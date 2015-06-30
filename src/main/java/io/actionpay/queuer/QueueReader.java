@@ -39,10 +39,10 @@ public class QueueReader implements Runnable {
 	public void processQueue() throws InterruptedException, SQLException, IOException, ClassNotFoundException {
 		QueueingConsumer.Delivery delivery = consumer.nextDelivery();
 		if (processor.process(delivery))
-			consumer.handleConsumeOk(consumer.getConsumerTag());
+			channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
 		else
-			consumer.handleCancel(consumer.getConsumerTag());
-		channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
+			channel.basicReject(delivery.getEnvelope().getDeliveryTag(), true);
+
 	}
 
 	public void handleLoopException(Exception exception) {
